@@ -152,7 +152,8 @@ class TableFieldRepository extends EntityRepository {
 			FROM IgnConfigurateurBundle:TableField t
 			INNER JOIN IgnConfigurateurBundle:ModelTables mt WITH mt.table = t.tableFormat
 			INNER JOIN IgnConfigurateurBundle:Model m WITH m.id = mt.model
-			WHERE m.ref = true");
+			WHERE m.ref = true
+			AND t.isMandatory = '1'");
 		return $query->getResult();
 	}
 
