@@ -400,3 +400,6 @@ data:
   foreign_key: Clé étrangère table %tableLabel%
   label.tooltip: Nom du champ tel qu'il apparaîtra dans l'interface GINCO.
   name.tooltip: Nom du champ tel qu'il apparaîtra dans la base de données. Les caractères autorisés sont les lettres minuscules, chiffres et l'underscore. Le premier caractère doit être une lettre.
+  compulsory_state_change:
+    mapping:
+      forbidden: Le caractère obligatoire du champ %dataName% ne peut être modifié car il est associé à un champ obligatoire non-calculé d'une des tables du modèle de données cible.

@@ -168,8 +168,14 @@ class FieldMappingController extends Controller {
 		$fieldMappingForm->handleRequest($request);
 		$fieldMapping->setMappingType('FILE');
 
+		// If field is mandatory and non-calculated in the data model, then the mapped field should also be mandatory
+		$fileField = $this->getFileFieldIfTableFieldIsMandatory($fieldMapping);
+
 		if ($fieldMappingForm->isValid()) {
 			$em->persist($fieldMapping);
+			if(isset($fileField)) {
+				$em->persist($fileField);
+			}
 			$em->flush();
 
 			return $this->redirectToRoute('configurateur_file_mappings', array(
@@ -392,6 +398,11 @@ class FieldMappingController extends Controller {
 				$fieldMapping->setDstData($srcData);
 				$fieldMapping->setMappingType('FILE');
 				$em->persist($fieldMapping);
+				// If field is mandatory and non-calculated in the data model, then the mapped field should also be mandatory
+				$fileField = $this->getFileFieldIfTableFieldIsMandatory($fieldMapping);
+				if(isset($fileField)) {
+					$em->persist($fileField);
+				}
 				$em->flush();
 				$report['auto_mapped'][] = $srcData;
 			} else if (!$destField) {
@@ -459,5 +470,30 @@ class FieldMappingController extends Controller {
 			$reportMessage .= $translator->trans('fieldMapping.auto.report.4.5');
 		}
 		return $reportMessage;
+	}
+
+	/**
+	 * Returns the filefield mapped with the tablefield if the tablefield
+	 * is mandatory and is not calculated. The filefield returned has its mandatory
+	 * attribute set to '1'.
+	 *
+	 * @param FileMapping $fieldMapping
+	 * @return FileField $fileField or NULL
+	 */
+	public function getFileFieldIfTableFieldIsMandatory($fieldMapping) {
+		$em = $this->getDoctrine()->getManager();
+		$tableField = $em->getRepository('IgnConfigurateurBundle:TableField')->find(array(
+			'data'=> $fieldMapping->getDstData(),
+			'tableFormat'=> $fieldMapping->getDstFormat(),
+		));
+
+		if($tableField->getIsMandatory() == '1' && $tableField->getIsCalculated() == '0') {
+			$fileField = $em->getRepository('IgnConfigurateurBundle:FileField')->find(array(
+				'data'=> $fieldMapping->getSrcData(),
+				'fileFormat'=> $fieldMapping->getSrcFormat()
+			));
+			$fileField->setIsMandatory('1');
+			return $fileField;
+		}
 	}
 }

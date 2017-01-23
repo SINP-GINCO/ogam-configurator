@@ -140,7 +140,19 @@ class FileController extends Controller {
 		// Get File Fields
 		$fileFieldRepository = $em->getRepository('IgnConfigurateurBundle:FileField');
 		$fileFields = $fileFieldRepository->findFieldsByFileFormat($format);
-
+		// Get mappings to get the non-calculated mandatory fields that can't be modified
+		$mappings = $em->getRepository('IgnConfigurateurBundle:FieldMapping')->findMappings($format, 'FILE');
+		$tableFieldRepository = $em->getRepository('IgnConfigurateurBundle:TableField');
+		$mandatoryFields = array();
+		foreach ($mappings as $mapping) {
+			$tableField = $tableFieldRepository->find(array(
+				'data' => $mapping['dstData'],
+				'tableFormat' => $mapping['dstFormat']
+			));
+			if($tableField->getIsMandatory() == '1' && $tableField->getIsCalculated() == '0') {
+				$mandatoryFields[] = $mapping['dstData'];
+			}
+		}
 		// "Auto Add Fields" Form
 		$autoAddFieldsForm = $this->autoAddFieldsForm($dataset, $file);
 
@@ -149,6 +161,7 @@ class FileController extends Controller {
 			'dataset' => $dataset,
 			'allFields' => $allFields,
 			'fileFields' => $fileFields,
+			'mandatoryFields' => $mandatoryFields,
 			'autoAddFieldsForm' => $autoAddFieldsForm->createView(),
 		));
 	}
