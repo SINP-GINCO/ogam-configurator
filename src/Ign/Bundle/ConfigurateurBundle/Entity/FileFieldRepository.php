@@ -1,7 +1,6 @@
 <?php
 namespace Ign\Bundle\ConfigurateurBundle\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\EntityRepository;
 use Ign\Bundle\ConfigurateurBundle\IgnConfigurateurBundle;
 

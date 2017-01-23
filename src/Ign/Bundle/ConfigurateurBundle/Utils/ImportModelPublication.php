@@ -55,12 +55,13 @@ class ImportModelPublication extends DatabaseUtils {
 			$this->conn->close();
 			return false;
 		}
-		
+
 		return true;
 	}
 
 	/**
 	 * Returns true if the data model of the import model is published.
+	 *
 	 * @param $importModelId the
 	 *        	id of the importmodel
 	 * @return boolean
@@ -350,7 +351,8 @@ class ImportModelPublication extends DatabaseUtils {
 	/**
 	 * Checks if, for a given import model, the model has at least one file
 	 *
-	 * @param $modelId : the id of the import model
+	 * @param $modelId :
+	 *        	the id of the import model
 	 * @return bool
 	 */
 	public function importModelHasFiles($modelId) {
@@ -359,7 +361,7 @@ class ImportModelPublication extends DatabaseUtils {
 		$stmt->bindValue(1, $modelId);
 		$stmt->execute();
 
-		$hasFiles =  ($stmt->fetchColumn(0) >= 1) ;
+		$hasFiles = ($stmt->fetchColumn(0) >= 1);
 
 		$this->conn->close();
 
@@ -369,7 +371,8 @@ class ImportModelPublication extends DatabaseUtils {
 	/**
 	 * Checks if, for a given import model, every file has at least one non-technical field
 	 *
-	 * @param $modelId : the id of the import model
+	 * @param $modelId :
+	 *        	the id of the import model
 	 * @return bool
 	 */
 	public function importModelFilesHaveFields($modelId) {
@@ -396,7 +399,8 @@ class ImportModelPublication extends DatabaseUtils {
 	/**
 	 * Checks if, for a given import model, every file has at least one field mapped
 	 *
-	 * @param $modelId : the id of the import model
+	 * @param $modelId :
+	 *        	the id of the import model
 	 * @return bool
 	 */
 	public function importModelFilesAreMapped($modelId) {
@@ -412,7 +416,7 @@ class ImportModelPublication extends DatabaseUtils {
 		$filesAllMapped = true;
 		while ($row = $stmt->fetch()) {
 			// no technical fields, unlike data tables.
-			if ( ($row['type'] == 'FILE' || empty($row['type']) ) && $row['nbmappings'] == 0 ) {
+			if (($row['type'] == 'FILE' || empty($row['type'])) && $row['nbmappings'] == 0) {
 				$filesAllMapped = false;
 			}
 		}
@@ -427,19 +431,14 @@ class ImportModelPublication extends DatabaseUtils {
 	 * - must have at least one file
 	 * - must have at least one field in all its files.
 	 * - must have at least one mapped field in all its files.
+	 * *
 	 *
-	 * @param $modelId: the	id of the model
+	 * @param $modelId: the
+	 *        	id of the model
 	 * @return boolean
 	 */
 	public function isPublishable($modelId) {
-
-		$publishable = (
-			!$this->isPublished($modelId)
-			&& $this->isImportModelDataModelPublished($modelId)
-			&& $this->importModelHasFiles($modelId)
-			&& $this->importModelFilesHaveFields($modelId)
-			&& $this->importModelFilesAreMapped($modelId)
-		);
+		$publishable = (!$this->isPublished($modelId) && $this->isImportModelDataModelPublished($modelId) && $this->importModelHasFiles($modelId) && $this->importModelFilesHaveFields($modelId) && $this->importModelFilesAreMapped($modelId));
 
 		return $publishable;
 	}

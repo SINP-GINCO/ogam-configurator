@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FieldMappingController extends Controller {
 
-
 	/**
 	 * Gestion des mappings du fichier
 	 * - Liste (avec boutons modifier et supprimer)
@@ -35,7 +34,7 @@ class FieldMappingController extends Controller {
 		// Parameters to pass to the template
 		$params = array(
 			'dataset' => $dataset,
-			'file' => $file,
+			'file' => $file
 		);
 
 		// Complete parameters in each dedicated method
@@ -54,27 +53,32 @@ class FieldMappingController extends Controller {
 	 * @param FileFormat $file
 	 * @return array : the parameters array
 	 */
-	public function listMappings(FileFormat $file)
-	{
+	public function listMappings(FileFormat $file) {
 		$em = $this->getDoctrine()->getManager();
 		$fieldMappings = $em->getRepository('IgnConfigurateurBundle:FieldMapping')->findMappings($file->getFormat(), 'FILE');
 		$fms = $fieldMappings;
 
 		// Rewrite mappings on "OGAM_ID_..." (keys)
 		foreach ($fieldMappings as $index => $fm) {
-			if (strpos($fm['dstData'], TableFormat::PK_PREFIX )=== 0) {
+			if (strpos($fm['dstData'], TableFormat::PK_PREFIX) === 0) {
 				$format = substr($fm['dstData'], strlen(TableFormat::PK_PREFIX));
 				$tableFormat = $em->getRepository('IgnConfigurateurBundle:TableFormat')->find($format);
 				$tableLabel = $tableFormat->getLabel();
 				// Primary key or foreign key ?
 				if ($format == $fm['dstFormat'])
-					$fms[$index]['dstDataLabel'] =  $this->get('Translator')->trans('data.primary_key', array('%tableLabel%' => $tableLabel ));
+					$fms[$index]['dstDataLabel'] = $this->get('Translator')->trans('data.primary_key', array(
+						'%tableLabel%' => $tableLabel
+					));
 				else
-					$fms[$index]['dstDataLabel'] = $this->get('Translator')->trans('data.foreign_key', array('%tableLabel%' => $tableLabel ));
+					$fms[$index]['dstDataLabel'] = $this->get('Translator')->trans('data.foreign_key', array(
+						'%tableLabel%' => $tableLabel
+					));
 			}
 		}
 
-		return array('fieldMappings' => $fms);
+		return array(
+			'fieldMappings' => $fms
+		);
 	}
 
 	/**
@@ -84,18 +88,19 @@ class FieldMappingController extends Controller {
 	 * @param FileFormat $file
 	 * @return array : the parameters array
 	 */
-	public function autoMappingForm(Dataset $dataset, FileFormat $file)
-	{
+	public function autoMappingForm(Dataset $dataset, FileFormat $file) {
 		$formOptions = array(
-				'modelId' => $dataset->getModel()->getId(),
-				'action' => $this->generateUrl('configurateur_field_automapping', array(
-						'datasetId' => $dataset->getId(),
-						'fileFormat' => $file->getFormat(),
-				)),
+			'modelId' => $dataset->getModel()->getId(),
+			'action' => $this->generateUrl('configurateur_field_automapping', array(
+				'datasetId' => $dataset->getId(),
+				'fileFormat' => $file->getFormat()
+			))
 		);
 		$autoMappingForm = $this->createForm(FieldMappingAutoType::class, null, $formOptions);
 
-		return array('autoMappingForm' => $autoMappingForm->createView());
+		return array(
+			'autoMappingForm' => $autoMappingForm->createView()
+		);
 	}
 
 	/**
@@ -105,8 +110,7 @@ class FieldMappingController extends Controller {
 	 * @param FileFormat $file
 	 * @return array : the parameters array
 	 */
-	public function manualMappingForm(Dataset $dataset, FileFormat $file, Request $request)
-	{
+	public function manualMappingForm(Dataset $dataset, FileFormat $file, Request $request) {
 		$em = $this->getDoctrine()->getManager();
 		$model = $dataset->getModel();
 
@@ -125,19 +129,21 @@ class FieldMappingController extends Controller {
 		}
 
 		$formOptions = array(
-				'action' => $this->generateUrl('configurateur_field_mapping_new', array(
-						'datasetId' => $dataset->getId(),
-						'fileFormat' => $file->getFormat(),
-				)),
-				'fileFormat' => $file->getFormat(),
-				'modelId' => $model->getId(),
-				'em' => $em
+			'action' => $this->generateUrl('configurateur_field_mapping_new', array(
+				'datasetId' => $dataset->getId(),
+				'fileFormat' => $file->getFormat()
+			)),
+			'fileFormat' => $file->getFormat(),
+			'modelId' => $model->getId(),
+			'em' => $em
 		);
 
 		$fieldMappingForm = $this->createForm(FieldMappingType::class, $fieldMapping, $formOptions);
 		$fieldMappingForm->handleRequest($request);
 
-		return array('fieldMappingForm' => $fieldMappingForm->createView());
+		return array(
+			'fieldMappingForm' => $fieldMappingForm->createView()
+		);
 	}
 
 	/**
@@ -156,13 +162,13 @@ class FieldMappingController extends Controller {
 		// Create fieldMapping form
 		$fieldMapping = new FieldMapping();
 		$formOptions = array(
-				'action' => $this->generateUrl('configurateur_field_mapping_new', array(
-						'datasetId' => $datasetId,
-						'fileFormat' => $fileFormat,
-				)),
-				'fileFormat' => $fileFormat,
-				'modelId' => $model->getId(),
-				'em' => $em
+			'action' => $this->generateUrl('configurateur_field_mapping_new', array(
+				'datasetId' => $datasetId,
+				'fileFormat' => $fileFormat
+			)),
+			'fileFormat' => $fileFormat,
+			'modelId' => $model->getId(),
+			'em' => $em
 		);
 		$fieldMappingForm = $this->createForm(FieldMappingType::class, $fieldMapping, $formOptions);
 		$fieldMappingForm->handleRequest($request);
@@ -173,21 +179,20 @@ class FieldMappingController extends Controller {
 
 		if ($fieldMappingForm->isValid()) {
 			$em->persist($fieldMapping);
-			if(isset($fileField)) {
+			if (isset($fileField)) {
 				$em->persist($fileField);
 			}
 			$em->flush();
 
 			return $this->redirectToRoute('configurateur_file_mappings', array(
-					'datasetId' => $datasetId,
-					'format' => $fileFormat
+				'datasetId' => $datasetId,
+				'format' => $fileFormat
 			));
-		}
-		else {
+		} else {
 			return $this->redirectToRoute('configurateur_file_mappings', array(
-					'datasetId' => $datasetId,
-					'format' => $fileFormat,
-					'request' => $request,
+				'datasetId' => $datasetId,
+				'format' => $fileFormat,
+				'request' => $request
 			), 307); // 307 preserve the request method (POST)
 		}
 	}
@@ -206,18 +211,18 @@ class FieldMappingController extends Controller {
 	public function editAction($datasetId, $fileFormat, $field, $table, $tableField, Request $request) {
 		// First delete the mapping
 		$this->forward('IgnConfigurateurBundle:FieldMapping:remove', array(
-				'datasetId' => $datasetId,
-				'fileFormat' => $fileFormat,
-				'field' => $field,
-				'table' => $table,
-				'tableField' => $tableField
+			'datasetId' => $datasetId,
+			'fileFormat' => $fileFormat,
+			'field' => $field,
+			'table' => $table,
+			'tableField' => $tableField
 		));
 
 		// Then redirects to main mapping page, with query to pre-fill manuel mapping form
 		return $this->redirect($this->generateUrl('configurateur_file_mappings', array(
-						'datasetId' => $datasetId,
-						'format' => $fileFormat,
-				)) . '?srcData='.$field.'&dstFormat='.$table.'&dstData='.$tableField);
+			'datasetId' => $datasetId,
+			'format' => $fileFormat
+		)) . '?srcData=' . $field . '&dstFormat=' . $table . '&dstData=' . $tableField);
 	}
 
 	/**
@@ -273,81 +278,80 @@ class FieldMappingController extends Controller {
 	 * Performs auto-mapping and redirects to mapping edition page
 	 * (action called from form on mapping edition page)
 	 *
-	 * @param $datasetId
-	 * @param $fileFormat
+	 * @param
+	 *        	$datasetId
+	 * @param
+	 *        	$fileFormat
 	 * @param Request $request
-	 * @return \Symfony\Component\HttpFoundation\RedirectResponse
-	 *
-	 * 			@Route("/datasetsimport/{datasetId}/files/{fileFormat}/automapping/", name="configurateur_field_automapping")
+	 * @return \Symfony\Component\HttpFoundation\RedirectResponse @Route("/datasetsimport/{datasetId}/files/{fileFormat}/automapping/", name="configurateur_field_automapping")
 	 *
 	 */
 	public function autoAction($datasetId, $fileFormat, Request $request) {
-
 		$em = $this->getDoctrine()->getManager();
 
 		$dataset = $em->getRepository('IgnConfigurateurBundle:Dataset')->find($datasetId);
-
 
 		// Create Auto-Field Mapping form
 		$formOptions = array(
 			'modelId' => $dataset->getModel()->getId(),
 			'action' => $this->generateUrl('configurateur_field_automapping', array(
 				'datasetId' => $datasetId,
-				'fileFormat' => $fileFormat,
-			)),
+				'fileFormat' => $fileFormat
+			))
 		);
 		$autoMappingForm = $this->createForm(FieldMappingAutoType::class, null, $formOptions);
 		$autoMappingForm->handleRequest($request);
 
 		if ($autoMappingForm->isValid()) {
-			$tableFormat = $autoMappingForm->get('dst_format')->getData()->getFormat();
+			$tableFormat = $autoMappingForm->get('dst_format')
+				->getData()
+				->getFormat();
 
 			$report = $this->doAutoMapping($tableFormat, $fileFormat);
 
 			$this->addFlash('notice-automapping', $report);
-		}
-		else {
-			$this->addFlash('error-automapping', $this->get('translator')->trans('fieldMapping.auto.chooseatable'));
+		} else {
+			$this->addFlash('error-automapping', $this->get('translator')
+				->trans('fieldMapping.auto.chooseatable'));
 		}
 
 		return $this->redirectToRoute('configurateur_file_mappings', array(
-				'datasetId' => $datasetId,
-				'format' => $fileFormat,
-			));
+			'datasetId' => $datasetId,
+			'format' => $fileFormat
+		));
 	}
-
 
 	/**
 	 * Performs auto-mapping and redirects to mapping edition page
 	 * (action called from direct link on fields edition page)
 	 *
-	 * @param $datasetId
-	 * @param $fileFormat
-	 * @param $tableFormat
-	 * @return \Symfony\Component\HttpFoundation\RedirectResponse
-	 *
-	 * 	@Route("/datasetsimport/{datasetId}/files/{fileFormat}/automapping/{tableFormat}", name="configurateur_field_automapping_direct")
+	 * @param
+	 *        	$datasetId
+	 * @param
+	 *        	$fileFormat
+	 * @param
+	 *        	$tableFormat
+	 * @return \Symfony\Component\HttpFoundation\RedirectResponse @Route("/datasetsimport/{datasetId}/files/{fileFormat}/automapping/{tableFormat}", name="configurateur_field_automapping_direct")
 	 */
-	public function directAutoMappingAction($datasetId, $fileFormat, $tableFormat)
-	{
+	public function directAutoMappingAction($datasetId, $fileFormat, $tableFormat) {
 		$report = $this->doAutoMapping($tableFormat, $fileFormat);
 		$this->addFlash('notice-automapping', $report);
 		return $this->redirectToRoute('configurateur_file_mappings', array(
-				'datasetId' => $datasetId,
-				'format' => $fileFormat,
+			'datasetId' => $datasetId,
+			'format' => $fileFormat
 		));
 	}
-
 
 	/**
 	 * Performs auto-mapping between table with format $tableFormat, file with format $fileFormat
 	 *
-	 * @param $tableFormat
-	 * @param $fileFormat
+	 * @param
+	 *        	$tableFormat
+	 * @param
+	 *        	$fileFormat
 	 * @return string : the report to show to the user
 	 */
-	public function doAutoMapping($tableFormat, $fileFormat)
-	{
+	public function doAutoMapping($tableFormat, $fileFormat) {
 		$em = $this->getDoctrine()->getManager();
 
 		$tableFields = $em->getRepository('IgnConfigurateurBundle:TableField')->findFieldsByTableFormat($tableFormat);
@@ -357,15 +361,19 @@ class FieldMappingController extends Controller {
 
 		// Generate a report
 		$report = array(
-				'fileLabel' => $em->getRepository('IgnConfigurateurBundle:FileFormat')->find($fileFormat)->getLabel(),
-				'tableLabel' => $em->getRepository('IgnConfigurateurBundle:TableFormat')->find($tableFormat)->getLabel(),
-				'already_mapped' => $fieldMappings,
-				'to_map' => $notMappedFields,
-				'auto_mapped' => array(),
-				'already_mapped_in_table' => array(),
-				'not_found_in_table' => array(),
-				'not_mapped_in_file' => array(),
-				'not_mapped_in_table' => array(),
+			'fileLabel' => $em->getRepository('IgnConfigurateurBundle:FileFormat')
+				->find($fileFormat)
+				->getLabel(),
+			'tableLabel' => $em->getRepository('IgnConfigurateurBundle:TableFormat')
+				->find($tableFormat)
+				->getLabel(),
+			'already_mapped' => $fieldMappings,
+			'to_map' => $notMappedFields,
+			'auto_mapped' => array(),
+			'already_mapped_in_table' => array(),
+			'not_found_in_table' => array(),
+			'not_mapped_in_file' => array(),
+			'not_mapped_in_table' => array()
 		);
 
 		// We try to auto-map the notMappedFields
@@ -400,7 +408,7 @@ class FieldMappingController extends Controller {
 				$em->persist($fieldMapping);
 				// If field is mandatory and non-calculated in the data model, then the mapped field should also be mandatory
 				$fileField = $this->getFileFieldIfTableFieldIsMandatory($fieldMapping);
-				if(isset($fileField)) {
+				if (isset($fileField)) {
 					$em->persist($fileField);
 				}
 				$em->flush();
@@ -412,60 +420,65 @@ class FieldMappingController extends Controller {
 		}
 
 		// Complete report with not-mapped fields in file and destination table :
-		$getData = function($arr) { return $arr['label']; };
+		$getData = function ($arr) {
+			return $arr['label'];
+		};
 		$report['not_mapped_in_file'] = array_map($getData, $em->getRepository('IgnConfigurateurBundle:FieldMapping')->findNotMappedFields($fileFormat, 'FILE'));
 		$report['not_mapped_in_table'] = array_map($getData, $em->getRepository('IgnConfigurateurBundle:FieldMapping')->findNotMappedFieldsInTable($tableFormat, 'FILE'));
 
 		return $this->generateReportAutoMapping($report);
 	}
 
-
 	/**
 	 * Generates text report message, based on report table
 	 * for auto-mapping action.
 	 *
-	 * @param $report
+	 * @param
+	 *        	$report
 	 * @return string
 	 */
 	public function generateReportAutoMapping($report) {
-		$translator =  $this->get('translator');
+		$translator = $this->get('translator');
 
-		$reportMessage = $translator->trans('fieldMapping.auto.report.1',
-				array( '%fileLabel%' => $report['fileLabel'],
-						'%tableName%' => $report['tableLabel'])
-		);
-		$reportMessage .= $translator->trans('fieldMapping.auto.report.2',
-				array( '%alreadyMapped%' => count($report['already_mapped']),
-						'%toMap%' => count($report['to_map']))
-		);
-		$reportMessage .= $translator->trans('fieldMapping.auto.report.3.1',
-				array( '%autoMapped%' => count($report['auto_mapped']))
-		);
-		if ( count($report['already_mapped_in_table']) > 0 ) {
-			$reportMessage .= $translator->trans('fieldMapping.auto.report.3.2',
-					array( '%alreadyMappedInTable%' => count($report['already_mapped_in_table']),
-							'%alreadyMappedInTableList%' => implode(', ',$report['already_mapped_in_table'])));
+		$reportMessage = $translator->trans('fieldMapping.auto.report.1', array(
+			'%fileLabel%' => $report['fileLabel'],
+			'%tableName%' => $report['tableLabel']
+		));
+		$reportMessage .= $translator->trans('fieldMapping.auto.report.2', array(
+			'%alreadyMapped%' => count($report['already_mapped']),
+			'%toMap%' => count($report['to_map'])
+		));
+		$reportMessage .= $translator->trans('fieldMapping.auto.report.3.1', array(
+			'%autoMapped%' => count($report['auto_mapped'])
+		));
+		if (count($report['already_mapped_in_table']) > 0) {
+			$reportMessage .= $translator->trans('fieldMapping.auto.report.3.2', array(
+				'%alreadyMappedInTable%' => count($report['already_mapped_in_table']),
+				'%alreadyMappedInTableList%' => implode(', ', $report['already_mapped_in_table'])
+			));
 		}
-		if ( count($report['not_found_in_table']) > 0 ) {
-			$reportMessage .= $translator->trans('fieldMapping.auto.report.3.3',
-					array( '%notFoundInTable%' => count($report['not_found_in_table']),
-							'%notFoundInTableList%' => implode(', ',$report['not_found_in_table'])));
+		if (count($report['not_found_in_table']) > 0) {
+			$reportMessage .= $translator->trans('fieldMapping.auto.report.3.3', array(
+				'%notFoundInTable%' => count($report['not_found_in_table']),
+				'%notFoundInTableList%' => implode(', ', $report['not_found_in_table'])
+			));
 		}
 		$reportMessage .= $translator->trans('fieldMapping.auto.report.3.4');
-		if ( count($report['not_mapped_in_file']) == 0 && count($report['not_mapped_in_table']) == 0 ) {
+		if (count($report['not_mapped_in_file']) == 0 && count($report['not_mapped_in_table']) == 0) {
 			$reportMessage .= $translator->trans('fieldMapping.auto.report.4.1');
-		}
-		else {
+		} else {
 			$reportMessage .= $translator->trans('fieldMapping.auto.report.4.2');
-			if ( count($report['not_mapped_in_file']) > 0 ) {
-				$reportMessage .= $translator->trans('fieldMapping.auto.report.4.3',
-						array('%notMappedInFile%' => count($report['not_mapped_in_file']),
-								'%notMappedInFileList%' => implode(', ',$report['not_mapped_in_file'])));
+			if (count($report['not_mapped_in_file']) > 0) {
+				$reportMessage .= $translator->trans('fieldMapping.auto.report.4.3', array(
+					'%notMappedInFile%' => count($report['not_mapped_in_file']),
+					'%notMappedInFileList%' => implode(', ', $report['not_mapped_in_file'])
+				));
 			}
-			if ( count($report['not_mapped_in_table']) > 0 ) {
-				$reportMessage .= $translator->trans('fieldMapping.auto.report.4.4',
-						array('%notMappedInTable%' => count($report['not_mapped_in_table']),
-								'%notMappedInTableList%' => implode(', ',$report['not_mapped_in_table'])));
+			if (count($report['not_mapped_in_table']) > 0) {
+				$reportMessage .= $translator->trans('fieldMapping.auto.report.4.4', array(
+					'%notMappedInTable%' => count($report['not_mapped_in_table']),
+					'%notMappedInTableList%' => implode(', ', $report['not_mapped_in_table'])
+				));
 			}
 			$reportMessage .= $translator->trans('fieldMapping.auto.report.4.5');
 		}
@@ -474,7 +487,8 @@ class FieldMappingController extends Controller {
 
 	/**
 	 * Returns the filefield mapped with the tablefield if the tablefield
-	 * is mandatory and is not calculated. The filefield returned has its mandatory
+	 * is mandatory and is not calculated.
+	 * The filefield returned has its mandatory
 	 * attribute set to '1'.
 	 *
 	 * @param FileMapping $fieldMapping
@@ -483,14 +497,14 @@ class FieldMappingController extends Controller {
 	public function getFileFieldIfTableFieldIsMandatory($fieldMapping) {
 		$em = $this->getDoctrine()->getManager();
 		$tableField = $em->getRepository('IgnConfigurateurBundle:TableField')->find(array(
-			'data'=> $fieldMapping->getDstData(),
-			'tableFormat'=> $fieldMapping->getDstFormat(),
+			'data' => $fieldMapping->getDstData(),
+			'tableFormat' => $fieldMapping->getDstFormat()
 		));
 
-		if($tableField->getIsMandatory() == '1' && $tableField->getIsCalculated() == '0') {
+		if ($tableField->getIsMandatory() == '1' && $tableField->getIsCalculated() == '0') {
 			$fileField = $em->getRepository('IgnConfigurateurBundle:FileField')->find(array(
-				'data'=> $fieldMapping->getSrcData(),
-				'fileFormat'=> $fieldMapping->getSrcFormat()
+				'data' => $fieldMapping->getSrcData(),
+				'fileFormat' => $fieldMapping->getSrcFormat()
 			));
 			$fileField->setIsMandatory('1');
 			return $fileField;

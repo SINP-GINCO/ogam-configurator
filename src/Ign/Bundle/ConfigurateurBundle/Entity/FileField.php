@@ -61,24 +61,24 @@ class FileField {
 	/**
 	 * Set format
 	 *
-	 * @param string $fileFormat        	
+	 * @param string $fileFormat
 	 * @return FileField
 	 */
 	public function setFileFormat($fileFormat) {
 		$this->fileFormat = $fileFormat;
-		
+
 		return $this;
 	}
 
 	/**
 	 * Set data
 	 *
-	 * @param string $data        	
+	 * @param string $data
 	 * @return FileField
 	 */
 	public function setData($data) {
 		$this->data = $data;
-		
+
 		return $this;
 	}
 
@@ -94,12 +94,12 @@ class FileField {
 	/**
 	 * Set isMandatory
 	 *
-	 * @param string $isMandatory        	
+	 * @param string $isMandatory
 	 * @return FileField
 	 */
 	public function setIsMandatory($isMandatory) {
 		$this->isMandatory = $isMandatory;
-		
+
 		return $this;
 	}
 
@@ -121,9 +121,8 @@ class FileField {
 	 * @return FileField
 	 */
 	public function setMask($mask) {
-
 		$this->mask = empty($mask) ? null : $mask;
-		
+
 		return $this;
 	}
 
@@ -139,12 +138,12 @@ class FileField {
 	/**
 	 * Set position
 	 *
-	 * @param integer $position        	
+	 * @param integer $position
 	 * @return FileField
 	 */
 	public function setPosition($position) {
 		$this->position = $position;
-		
+
 		return $this;
 	}
 

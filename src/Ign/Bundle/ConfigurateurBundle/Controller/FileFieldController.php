@@ -84,7 +84,7 @@ class FileFieldController extends Controller {
 					$fileField->setMask("yyyy-MM-dd'T'HH:mmZ");
 				} elseif ($dataField->getUnit()->getName() == 'Time') {
 					$fileField->setMask("HH:mm");
- 				}  else {
+				} else {
 					$fileField->setMask('');
 				}
 

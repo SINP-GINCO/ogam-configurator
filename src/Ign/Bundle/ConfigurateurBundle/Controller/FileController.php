@@ -35,7 +35,9 @@ class FileController extends Controller {
 		// Create form to add file
 		$formFile = $this->createForm(FileFormatType::class, $file);
 		// Add a "save and manage fields" button
-		$formFile->add('saveAndFields', SubmitType::class, array('label' => 'table.edit.saveandfields'));
+		$formFile->add('saveAndFields', SubmitType::class, array(
+			'label' => 'table.edit.saveandfields'
+		));
 
 		$formFile->handleRequest($request);
 
@@ -63,20 +65,18 @@ class FileController extends Controller {
 			$dataset->addFile($file);
 			$em->flush();
 
-			$nextAction = $formFile->get('saveAndFields')->isClicked()
-					? 'configurateur_file_fields'
-					: 'configurateur_file_edit';
+			$nextAction = $formFile->get('saveAndFields')->isClicked() ? 'configurateur_file_fields' : 'configurateur_file_edit';
 
 			return $this->redirectToRoute($nextAction, array(
 				'datasetId' => $dataset->getId(),
-				'format' => $fileFormat,
+				'format' => $fileFormat
 			));
 		}
 
 		$files = $dataset->getFiles();
 		return $this->render('IgnConfigurateurBundle:FileFormat:new.html.twig', array(
 			'fileForm' => $formFile->createView(),
-			'dataset' => $dataset,
+			'dataset' => $dataset
 		));
 	}
 
@@ -117,7 +117,7 @@ class FileController extends Controller {
 		return $this->render('IgnConfigurateurBundle:FileFormat:edit.html.twig', array(
 			'fileForm' => $form->createView(),
 			'file' => $file,
-			'dataset' => $dataset,
+			'dataset' => $dataset
 		));
 	}
 
@@ -149,7 +149,7 @@ class FileController extends Controller {
 				'data' => $mapping['dstData'],
 				'tableFormat' => $mapping['dstFormat']
 			));
-			if($tableField->getIsMandatory() == '1' && $tableField->getIsCalculated() == '0') {
+			if ($tableField->getIsMandatory() == '1' && $tableField->getIsCalculated() == '0') {
 				$mandatoryFields[] = $mapping['dstData'];
 			}
 		}
@@ -162,7 +162,7 @@ class FileController extends Controller {
 			'allFields' => $allFields,
 			'fileFields' => $fileFields,
 			'mandatoryFields' => $mandatoryFields,
-			'autoAddFieldsForm' => $autoAddFieldsForm->createView(),
+			'autoAddFieldsForm' => $autoAddFieldsForm->createView()
 		));
 	}
 
@@ -173,21 +173,18 @@ class FileController extends Controller {
 	 * @param FileFormat $file
 	 * @return array : the parameters array
 	 */
-	public function autoAddFieldsForm(Dataset $dataset, FileFormat $file)
-	{
+	public function autoAddFieldsForm(Dataset $dataset, FileFormat $file) {
 		$formOptions = array(
-				'modelId' => $dataset->getModel()->getId(),
-				'action' => $this->generateUrl('configurateur_file_auto_add_fields', array(
-						'datasetId' => $dataset->getId(),
-						'fileFormat' => $file->getFormat(),
-				)),
+			'modelId' => $dataset->getModel()->getId(),
+			'action' => $this->generateUrl('configurateur_file_auto_add_fields', array(
+				'datasetId' => $dataset->getId(),
+				'fileFormat' => $file->getFormat()
+			))
 		);
 		$autoAddFieldsForm = $this->createForm(FileFieldAutoType::class, null, $formOptions);
 
 		return $autoAddFieldsForm;
 	}
-
-
 
 	/**
 	 * Deletes the file given by its id in the dataset given by its id.
@@ -273,15 +270,19 @@ class FileController extends Controller {
 		$fieldMappings = $em->getRepository('IgnConfigurateurBundle:FieldMapping')->findMappings($format, 'FILE');
 		// Rewrite mappings on "OGAM_ID_..." (keys)
 		foreach ($fieldMappings as $index => $fieldMapping) {
-			if (strpos($fieldMapping['dstData'], TableFormat::PK_PREFIX )=== 0) {
+			if (strpos($fieldMapping['dstData'], TableFormat::PK_PREFIX) === 0) {
 				$format = substr($fieldMapping['dstData'], strlen(TableFormat::PK_PREFIX));
 				$tableFormat = $em->getRepository('IgnConfigurateurBundle:TableFormat')->find($format);
 				$tableLabel = $tableFormat->getLabel();
 				// Primary key or foreign key ?
 				if ($format == $fieldMapping['dstFormat'])
-					$fieldMappings[$index]['dstDataLabel'] = $this->get('Translator')->trans('data.primary_key', array('%tableLabel%' => $tableLabel ));
+					$fieldMappings[$index]['dstDataLabel'] = $this->get('Translator')->trans('data.primary_key', array(
+						'%tableLabel%' => $tableLabel
+					));
 				else
-					$fieldMappings[$index]['dstDataLabel'] = $this->get('Translator')->trans('data.foreign_key', array('%tableLabel%' => $tableLabel ));
+					$fieldMappings[$index]['dstDataLabel'] = $this->get('Translator')->trans('data.foreign_key', array(
+						'%tableLabel%' => $tableLabel
+					));
 			}
 		}
 
@@ -295,44 +296,44 @@ class FileController extends Controller {
 	}
 
 	/**
-	 * @param $datasetId
-	 * @param $fileFormat
+	 *
+	 * @param
+	 *        	$datasetId
+	 * @param
+	 *        	$fileFormat
 	 * @param Request $request
-	 * @return \Symfony\Component\HttpFoundation\RedirectResponse
+	 * @return \Symfony\Component\HttpFoundation\RedirectResponse @Route("/datasetsimport/{datasetId}/files/{fileFormat}/autofields/", name="configurateur_file_auto_add_fields")
 	 *
-	 * @Route("/datasetsimport/{datasetId}/files/{fileFormat}/autofields/", name="configurateur_file_auto_add_fields")
-	 *
-	 * Automatically adds fields to the file (same fields as the ones in the chosen table)
+	 *         Automatically adds fields to the file (same fields as the ones in the chosen table)
 	 */
 	public function autoAction($datasetId, $fileFormat, Request $request) {
-
 		$em = $this->getDoctrine()->getManager();
 
 		$dataset = $em->getRepository('IgnConfigurateurBundle:Dataset')->find($datasetId);
 
-
 		// Create Auto-Add-Fieldform
 		$formOptions = array(
-				'modelId' => $dataset->getModel()->getId(),
-				'action' => $this->generateUrl('configurateur_file_fields', array(
-						'datasetId' => $datasetId,
-						'format' => $fileFormat,
-				)),
+			'modelId' => $dataset->getModel()->getId(),
+			'action' => $this->generateUrl('configurateur_file_fields', array(
+				'datasetId' => $datasetId,
+				'format' => $fileFormat
+			))
 		);
 		$autoAddFieldsForm = $this->createForm(FileFieldAutoType::class, null, $formOptions);
 		$autoAddFieldsForm->handleRequest($request);
 
 		if ($autoAddFieldsForm->isValid()) {
-			$tableFormat = $autoAddFieldsForm->get('table_format')->getData()->getFormat();
+			$tableFormat = $autoAddFieldsForm->get('table_format')
+				->getData()
+				->getFormat();
 			$table = $em->getRepository('IgnConfigurateurBundle:TableFormat')->find($tableFormat);
 			$tableFields = $em->getRepository('IgnConfigurateurBundle:TableField')->findFieldsByTableFormat($tableFormat);
 
 			// Get mandatory fields in table fields
-			$isMandatory = function($field) {
-				return ($field['isMandatory']==1);
+			$isMandatory = function ($field) {
+				return ($field['isMandatory'] == 1);
 			};
 			$mandatoryFields = array_filter($tableFields, $isMandatory);
-
 
 			$fileFields = $em->getRepository('IgnConfigurateurBundle:FileField')->findFieldsByFileFormat($fileFormat);
 
@@ -344,18 +345,25 @@ class FileController extends Controller {
 
 			// Generate a report
 			$report = array(
-					'fileLabel' => $em->getRepository('IgnConfigurateurBundle:FileFormat')->find($fileFormat)->getLabel(),
-					'tableLabel' => $em->getRepository('IgnConfigurateurBundle:TableFormat')->find($tableFormat)->getLabel(),
-					'mandatoryOnly' => $mandatoryOnly,
-
-			);
+				'fileLabel' => $em->getRepository('IgnConfigurateurBundle:FileFormat')
+					->find($fileFormat)
+					->getLabel(),
+				'tableLabel' => $em->getRepository('IgnConfigurateurBundle:TableFormat')
+					->find($tableFormat)
+					->getLabel(),
+				'mandatoryOnly' => $mandatoryOnly
+			)
+			;
 
 			// Find table fields not already added as file fields
 			$tableDatas = array_column($tableFields, 'fieldName');
 
 			// remove technical fields
-			$technicalFields = array('PROVIDER_ID', 'SUBMISSION_ID');
-			$technicalFields = array_merge($technicalFields, explode(',',$table->getPrimaryKey()));
+			$technicalFields = array(
+				'PROVIDER_ID',
+				'SUBMISSION_ID'
+			);
+			$technicalFields = array_merge($technicalFields, explode(',', $table->getPrimaryKey()));
 
 			$tableDatas = array_diff($tableDatas, $technicalFields);
 
@@ -363,30 +371,33 @@ class FileController extends Controller {
 			$fieldsToAdd = array_diff($tableDatas, $fileDatas);
 
 			$fieldsToAddLabels = array();
-			foreach ( $fieldsToAdd as $data ) {
-				$fieldsToAddLabels[] = $em->getRepository('IgnConfigurateurBundle:Data')->find($data)->getLabel();
+			foreach ($fieldsToAdd as $data) {
+				$fieldsToAddLabels[] = $em->getRepository('IgnConfigurateurBundle:Data')
+					->find($data)
+					->getLabel();
 			}
 
 			$report = array_merge($report, array(
 				'tableFields' => $tableDatas,
 				'fileFields' => $fileDatas,
-				'fieldsToAdd' => $fieldsToAddLabels,
+				'fieldsToAdd' => $fieldsToAddLabels
 			));
 
 			// Add them ; get redirection in a variable
 			$redirectResponse = $this->forward('IgnConfigurateurBundle:FileField:addFields', array(
-					'datasetId' => $datasetId,
-					'format' => $fileFormat,
-					'addedFields' => implode(',', $fieldsToAdd),
+				'datasetId' => $datasetId,
+				'format' => $fileFormat,
+				'addedFields' => implode(',', $fieldsToAdd)
 			));
 
 			// Update as mandatory in file the fields which are mandatory in table
 			$mFields = array_column($mandatoryFields, 'fieldName');
 			$mFields = array_intersect($fieldsToAdd, $mFields);
 			foreach ($mFields as $mfield) {
-				$fileField = $em->getRepository('IgnConfigurateurBundle:FileField')->findOneBy(
-						array('data' => $mfield, 'fileFormat' => $fileFormat)
-				);
+				$fileField = $em->getRepository('IgnConfigurateurBundle:FileField')->findOneBy(array(
+					'data' => $mfield,
+					'fileFormat' => $fileFormat
+				));
 				$fileField->setIsMandatory('1');
 			}
 			$em->flush();
@@ -394,23 +405,22 @@ class FileController extends Controller {
 			$link = $this->generateUrl("configurateur_field_automapping_direct", array(
 				'datasetId' => $datasetId,
 				'fileFormat' => $fileFormat,
-				'tableFormat' => $tableFormat,
+				'tableFormat' => $tableFormat
 			));
 
 			$report['mappingLink'] = $link;
 
 			$notice = $this->generateReportAutoAddFields($report);
 
-			$this->addFlash('notice-autoaddfields', $notice );
-
-		}
-		else {
-			$this->addFlash('error-autoaddfields', $this->get('translator')->trans('fileField.auto.chooseatable'));
+			$this->addFlash('notice-autoaddfields', $notice);
+		} else {
+			$this->addFlash('error-autoaddfields', $this->get('translator')
+				->trans('fileField.auto.chooseatable'));
 		}
 
 		return $this->redirectToRoute('configurateur_file_fields', array(
-				'datasetId' => $datasetId,
-				'format' => $fileFormat,
+			'datasetId' => $datasetId,
+			'format' => $fileFormat
 		));
 	}
 
@@ -418,42 +428,44 @@ class FileController extends Controller {
 	 * Generates text report message, based on report table
 	 * for auto-mapping action.
 	 *
-	 * @param $report
+	 * @param
+	 *        	$report
 	 * @return string
 	 */
 	public function generateReportAutoAddFields($report) {
-		$translator =  $this->get('translator');
+		$translator = $this->get('translator');
 
 		if ($report['mandatoryOnly']) {
-			$reportMessage = $translator->trans('fileField.auto.report.2',
-					array('%fileLabel%' => $report['fileLabel'],
-							'%tableName%' => $report['tableLabel'])
-			);
-			$reportMessage .= $translator->trans('fileField.auto.report.4',
-					array( '%fileFields%' => count($report['fileFields']),
-							'%tableFields%' => count($report['tableFields']))
-			);
+			$reportMessage = $translator->trans('fileField.auto.report.2', array(
+				'%fileLabel%' => $report['fileLabel'],
+				'%tableName%' => $report['tableLabel']
+			));
+			$reportMessage .= $translator->trans('fileField.auto.report.4', array(
+				'%fileFields%' => count($report['fileFields']),
+				'%tableFields%' => count($report['tableFields'])
+			));
 		} else {
-			$reportMessage = $translator->trans('fileField.auto.report.1',
-					array('%fileLabel%' => $report['fileLabel'],
-							'%tableName%' => $report['tableLabel'])
-			);
-			$reportMessage .= $translator->trans('fileField.auto.report.3',
-					array( '%fileFields%' => count($report['fileFields']),
-							'%tableFields%' => count($report['tableFields']))
-			);
+			$reportMessage = $translator->trans('fileField.auto.report.1', array(
+				'%fileLabel%' => $report['fileLabel'],
+				'%tableName%' => $report['tableLabel']
+			));
+			$reportMessage .= $translator->trans('fileField.auto.report.3', array(
+				'%fileFields%' => count($report['fileFields']),
+				'%tableFields%' => count($report['tableFields'])
+			));
 		}
-		if ( count($report['fieldsToAdd']) == 0 ) {
+		if (count($report['fieldsToAdd']) == 0) {
 			$reportMessage .= $translator->trans('fileField.auto.report.5');
 		} else {
-			$reportMessage .= $translator->trans('fileField.auto.report.6',
-					array('%fieldsAddedCount%' => count($report['fieldsToAdd']),
-							'%fieldsAdded%' => implode(', ',$report['fieldsToAdd'])));
-			$reportMessage .= $translator->trans('fileField.auto.report.7',
-					array('%mappingLink%' => $report['mappingLink']));
+			$reportMessage .= $translator->trans('fileField.auto.report.6', array(
+				'%fieldsAddedCount%' => count($report['fieldsToAdd']),
+				'%fieldsAdded%' => implode(', ', $report['fieldsToAdd'])
+			));
+			$reportMessage .= $translator->trans('fileField.auto.report.7', array(
+				'%mappingLink%' => $report['mappingLink']
+			));
 		}
 
 		return $reportMessage;
 	}
-
 }
