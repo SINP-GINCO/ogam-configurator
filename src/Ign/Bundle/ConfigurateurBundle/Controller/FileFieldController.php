@@ -139,60 +139,96 @@ class FileFieldController extends Controller {
 		$masks = array_map("urldecode", $masks);
 		$orders = explode(",", $orders);
 
+		// Check that the masks are correct
+		$incorrectMasks = array();
 		for ($i = 0; $i < sizeof($data); $i ++) {
 			$name = $data[$i];
-
-			if ($mandatorys[$i] == 'true') {
-				$mandatory = '1';
-			} else {
-				$mandatory = '0';
-			}
-
-			if ($masks[$i] == 'null') {
-				$mask = '';
-			} else {
-				$mask = $masks[$i];
-			}
-			$order = $orders[$i];
-
-			$fileField = new FileField();
-			$field = new Field();
-
+			$mask = $masks[$i];
 			$dataField = $dataRepository->find($name);
-
-			if ($dataField !== null) {
-				$field->setData($dataField);
-				$field->setFormat($format);
-				$field->setType('FILE');
-				$em->merge($field);
+			$dateMasks = array(
+				'Date',
+				'DateTime'
+			);
+			if (in_array($dataField->getUnit()->getName(), $dateMasks)) {
+				if (strpos($mask, 'yyyy') === false || strpos($mask, 'MM') === false || strpos($mask, 'dd') === false) {
+					$incorrectMasks[] = "$name ($mask)" ;
+				}
+			} elseif ($dataField->getUnit()->getName() == 'TIME') {
+				if (strpos($mask, 'HH') === false) {
+					$incorrectMasks[] = $name;
+				}
 			}
-
-			$em->flush();
-
-			if ($dataField !== null) {
-				$fileField->setData($name);
-				$fileField->setFileFormat($file->getFormat());
-				$fileField->setMask($mask);
-				$fileField->setIsMandatory($mandatory);
-				$fileField->setPosition($order);
-
-				$em->merge($fileField);
-			}
-
-			$em->flush();
 		}
 
-		$this->addFlash('notice', $this->get('translator')
-			->trans('file.edit.fields.success', array(
-			'%file.label%' => $file->getLabel()
-		)));
+		if (count($incorrectMasks) == 0) {
 
-		if ($toMapping == 'true') {
-			return $this->redirectToRoute('configurateur_file_mappings', array(
-				'datasetId' => $datasetId,
-				'format' => $format->getFormat()
-			));
+			for ($i = 0; $i < sizeof($data); $i ++) {
+				$name = $data[$i];
+
+				if ($mandatorys[$i] == 'true') {
+					$mandatory = '1';
+				} else {
+					$mandatory = '0';
+				}
+
+				if ($masks[$i] == 'null') {
+					$mask = '';
+				} else {
+					$mask = $masks[$i];
+				}
+				$order = $orders[$i];
+
+				$fileField = new FileField();
+				$field = new Field();
+
+				$dataField = $dataRepository->find($name);
+
+				if ($dataField !== null) {
+					$field->setData($dataField);
+					$field->setFormat($format);
+					$field->setType('FILE');
+					$em->merge($field);
+				}
+
+				$em->flush();
+
+				if ($dataField !== null) {
+					$fileField->setData($name);
+					$fileField->setFileFormat($file->getFormat());
+					$fileField->setMask($mask);
+					$fileField->setIsMandatory($mandatory);
+					$fileField->setPosition($order);
+
+					$em->merge($fileField);
+				}
+
+				$em->flush();
+			}
+
+			$this->addFlash('notice', $this->get('translator')
+				->trans('file.edit.fields.success', array(
+				'%file.label%' => $file->getLabel()
+			)));
+
+			if ($toMapping == 'true') {
+				return $this->redirectToRoute('configurateur_file_mappings', array(
+					'datasetId' => $datasetId,
+					'format' => $format->getFormat()
+				));
+			} else {
+				return $this->redirectToRoute('configurateur_file_fields', array(
+					'datasetId' => $datasetId,
+					'format' => $format->getFormat()
+				));
+			}
 		} else {
+			$this->addFlash('error', $this->get('translator')
+				->trans('fileField.mask.incorrectFormat', array(
+				'%incorrectFields%' => implode(', ', $incorrectMasks)
+			)) . $this->get('translator')
+				->trans('fileField.mask.dateRule') . $this->get('translator')
+				->trans('fileField.mask.timeRule'));
+
 			return $this->redirectToRoute('configurateur_file_fields', array(
 				'datasetId' => $datasetId,
 				'format' => $format->getFormat()

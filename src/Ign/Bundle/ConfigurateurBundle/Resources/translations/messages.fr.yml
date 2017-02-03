@@ -283,10 +283,13 @@ fileField:
   mask:
     label: Format de date
     help: Le masque d'un champ est l'expression régulière que la valeur d'un champ doit vérifier lors de l'import. Lorsqu'aucun masque n'est indiqué, aucune vérification n'est faite sur les valeurs.
-    date: Pour les champs de type DATE, il est possible de préciser le format que les valeurs du champ doivent prendre. Par défaut, le format yyyy-MM-dd est utilisé.
+    date: Pour les champs de type Date, il est possible de préciser le format que les valeurs du champ doivent prendre. Par défaut, le format yyyy-MM-dd est utilisé.
     example1: "yyyy-MM-dd : une date comme 2015-10-22"
     example2: "yyyy-MM-dd'T'HH:mmZ : une date comme 2016-12-12T04:12+0100 (format ISO 8601)"
     doc.date : Une documentation est disponible <a href="/pdf/doc_format_de_date.pdf" target="_blank" > ici</a>.
+    incorrectFormat : <p>Le format de date renseigné était incorrect pour le ou les champ(s) : %incorrectFields%.</p>
+    dateRule: <p>Pour les champs de type Date, le masque doit contenir l'année (yyyy), le mois (MM) et le jour (dd), quel que soit l'ordre.</p>
+    timeRule: <p>Pour les champs de type Time, le masque doit au moins contenir les heures (HH).</p>
   order.tooltip: L'ordre des champs peut être modifié via un glisser-déposer de ceux-ci.
   selectTable: Sélectionner une table...
   auto:
