@@ -77,12 +77,11 @@ class FileFieldController extends Controller {
 
 				$fileField->setData($dataField->getName());
 				$fileField->setFileFormat($file->getFormat());
-
 				if ($dataField->getUnit()->getName() == 'Date') {
 					$fileField->setMask('yyyy-MM-dd');
 				} elseif ($dataField->getUnit()->getName() == 'DateTime') {
 					$fileField->setMask("yyyy-MM-dd'T'HH:mmZ");
-				} elseif ($dataField->getUnit()->getName() == 'Time') {
+				} elseif ($dataField->getUnit()->getName() == 'TIME') {
 					$fileField->setMask("HH:mm");
 				} else {
 					$fileField->setMask('');
