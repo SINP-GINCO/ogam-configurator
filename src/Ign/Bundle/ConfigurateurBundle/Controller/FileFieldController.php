@@ -153,7 +153,7 @@ class FileFieldController extends Controller {
 				if (strpos($mask, 'yyyy') === false || strpos($mask, 'MM') === false || strpos($mask, 'dd') === false) {
 					$incorrectMasks[] = "$name ($mask)";
 				}
-			} elseif ($dataField->getUnit()->getName() == 'TIME') {
+			} elseif ($dataField->getUnit()->getName() == 'Time') {
 				if (strpos($mask, 'HH') === false) {
 					$incorrectMasks[] = "$name ($mask)";
 				}
