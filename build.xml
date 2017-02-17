@@ -33,7 +33,10 @@
             unless="phpunit.done"
             depends="prepare">
         <exec executable="phpunit" failonerror="true">
-            <arg line="-c ${basedir}/app/phpunit.xml.dist ${basedir}/src"/>
+            <arg line="-c ${basedir}/app/phpunit.xml.dist --testsuite ogamConfigurator"/>
+        </exec>
+        <exec executable="phpunit" failonerror="true">
+            <arg line="-c ${basedir}/app/phpunit.xml.dist --testsuite gincoConfigurator"/>
         </exec>
         <property name="phpunit.done" value="true"/>
     </target>
