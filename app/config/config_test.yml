@@ -15,10 +15,10 @@ framework:
 # Doctrine Configuration
 doctrine:
     dbal:
-        dbname:   "sinp_unit_test"
+        dbname:   "ginco_zend_ut"
 
 parameters:
-    database_name: sinp_unit_test
+    database_name: ginco_zend_ut
 
 web_profiler:
     toolbar: false
