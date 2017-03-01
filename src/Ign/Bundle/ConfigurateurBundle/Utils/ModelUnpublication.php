@@ -647,24 +647,12 @@ class ModelUnpublication extends DatabaseUtils {
 
 		$this->logger->debug("drop predefined requests for dataset : " . $datasetId);
 
-		$sql = "DELETE FROM website.predefined_request_result WHERE request_name LIKE '" . $datasetId . "_%'";
+		$sql = "DELETE FROM website.predefined_request CASCADE WHERE dataset_id = '" . $datasetId . "'";
 		$stmt = $this->conn->prepare($sql);
 		$stmt->execute();
 
-		$sql = "DELETE FROM website.predefined_request_criteria WHERE request_name LIKE '" . $datasetId . "_%'";
-		$stmt = $this->conn->prepare($sql);
-		$stmt->execute();
-
-		$sql = "DELETE FROM website.predefined_request_group_asso WHERE request_name LIKE '" . $datasetId . "_%'";
-		$stmt = $this->conn->prepare($sql);
-		$stmt->execute();
-
-		$sql = "DELETE FROM website.predefined_request WHERE request_name LIKE '" . $datasetId . "_%'";
-		$stmt = $this->conn->prepare($sql);
-		$stmt->execute();
-
-		$sql = "DELETE FROM website.predefined_request_group WHERE group_name = '" . $datasetId . "'";
-		$stmt = $this->conn->prepare($sql);
-		$stmt->execute();
+ 		$sql = "DELETE FROM website.predefined_request_group WHERE group_name = '" . $datasetId . "'";
+ 		$stmt = $this->conn->prepare($sql);
+ 		$stmt->execute();
 	}
 }
