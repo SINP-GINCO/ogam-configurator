@@ -121,17 +121,16 @@ class PredefinedRequestTest extends WebTestCase {
 	 */
 	public function testAddPredefinedRequestCriterion() {
 		$datasetId = 'dataset_2_predefined';
-		$requestName = $datasetId . '_periode';
-		$this->prg->addPredefinedRequestCriterion($requestName, 'form_localisation', 'codeen', '', 'FALSE', $this->dbconn);
+		$this->prg->addPredefinedRequestCriterion(1, 'form_localisation', 'codeen', '', 'FALSE', $this->dbconn);
 
-		$sql = "select count(request_name), request_name
+		$sql = "select count(id_predefined_request), id_predefined_request
 				from website.predefined_request_criteria
-				group by request_name";
+				group by id_predefined_request";
 		$stmt = $this->prg->getConnection()->prepare($sql);
 		$stmt->execute();
 		$row = $stmt->fetch();
 		$this->assertEquals(1, $row['count']);
-		$this->assertTrue($row['request_name'] == 'dataset_2_predefined_periode');
+		$this->assertTrue($row['id_predefined_request'] == 1);
 	}
 
 	/**
@@ -141,17 +140,16 @@ class PredefinedRequestTest extends WebTestCase {
 	 */
 	public function testAddPredefinedRequestResult() {
 		$datasetId = 'dataset_2_predefined';
-		$requestName = $datasetId . '_periode';
-		$this->prg->addPredefinedRequestResult($requestName, 'form_localisation', 'codeen', $this->dbconn);
+		$this->prg->addPredefinedRequestResult(1, 'form_localisation', 'codeen', $this->dbconn);
 
-		$sql = "select count(request_name), request_name
+		$sql = "select count(id_predefined_request), id_predefined_request
 				from website.predefined_request_result
-				group by request_name";
+				group by id_predefined_request";
 		$stmt = $this->prg->getConnection()->prepare($sql);
 		$stmt->execute();
 		$row = $stmt->fetch();
 		$this->assertEquals(1, $row['count']);
-		$this->assertTrue($row['request_name'] == 'dataset_2_predefined_periode');
+		$this->assertTrue($row['id_predefined_request'] == 1);
 	}
 
 	/**
@@ -201,21 +199,21 @@ class PredefinedRequestTest extends WebTestCase {
 		$row = $stmt->fetch();
 		$this->assertEquals(1, $row['count']);
 
-		$sql = "select count(request_name)
+		$sql = "select count(id_predefined_request)
 				from website.predefined_request_group_asso";
 		$stmt = $this->prg->getConnection()->prepare($sql);
 		$stmt->execute();
 		$row = $stmt->fetch();
 		$this->assertEquals(5, $row['count']);
 
-		$sql = "select count(request_name)
+		$sql = "select count(id_predefined_request)
 				from website.predefined_request_criteria";
 		$stmt = $this->prg->getConnection()->prepare($sql);
 		$stmt->execute();
 		$row = $stmt->fetch();
 		$this->assertEquals(21, $row['count']);
 
-		$sql = "select count(request_name)
+		$sql = "select count(id_predefined_request)
 				from website.predefined_request_result";
 		$stmt = $this->prg->getConnection()->prepare($sql);
 		$stmt->execute();
@@ -248,21 +246,21 @@ class PredefinedRequestTest extends WebTestCase {
 		$row = $stmt->fetch();
 		$this->assertEquals(0, $row['count']);
 
-		$sql = "select count(request_name)
+		$sql = "select count(id_predefined_request)
 				from website.predefined_request_group_asso";
 		$stmt = $this->prg->getConnection()->prepare($sql);
 		$stmt->execute();
 		$row = $stmt->fetch();
 		$this->assertEquals(0, $row['count']);
 
-		$sql = "select count(request_name)
+		$sql = "select count(id_predefined_request)
 				from website.predefined_request_criteria";
 		$stmt = $this->prg->getConnection()->prepare($sql);
 		$stmt->execute();
 		$row = $stmt->fetch();
 		$this->assertEquals(0, $row['count']);
 
-		$sql = "select count(request_name)
+		$sql = "select count(id_predefined_request)
 				from website.predefined_request_result";
 		$stmt = $this->prg->getConnection()->prepare($sql);
 		$stmt->execute();
