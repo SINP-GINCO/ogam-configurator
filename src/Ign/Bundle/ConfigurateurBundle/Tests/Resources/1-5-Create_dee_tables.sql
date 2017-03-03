@@ -150,7 +150,7 @@ CREATE OR REPLACE FUNCTION raw_data.perm_id_generatemodel_1_observation()
 $BODY$
 				BEGIN
 				IF (NEW.identifiantPermanent IS NULL OR NEW.identifiantPermanent = '') THEN
-				 NEW.identifiantPermanent  := concat('http://localhost.ogam-sinp.ign.fr/occtax/',uuid_generate_v1());
+				 NEW.identifiantPermanent  := uuid_generate_v1();
 				END IF;
 				RETURN NEW;
 				END;

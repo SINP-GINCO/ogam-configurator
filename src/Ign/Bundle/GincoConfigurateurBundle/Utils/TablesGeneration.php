@@ -82,9 +82,9 @@ class TablesGeneration extends TablesGenerationBase {
 	 * Creates a trigger on the field "identifiantpermanent" (permanent identifier).
 	 * If it is not given at insert time, the trigger creates an identifier like :
 	 *
-	 * http(s)://region.ogam-sinp.ign.fr/occtax/99855cf6-a7e0-11e5-aa6e-7824af3388df
+	 * 99855cf6-a7e0-11e5-aa6e-7824af3388df
 	 *
-	 * [protocol][ site host name ][const][ uuid (ISO/IEC 9834‐8:2008) ]
+	 * [ uuid (ISO/IEC 9834‐8:2008) ]
 	 *
 	 * @param string $tableName        	
 	 * @param string $tableSchema        	
@@ -104,20 +104,14 @@ class TablesGeneration extends TablesGenerationBase {
 		if (pg_fetch_row($result)[0] > 0) {
 			
 			$request = $this->requestStack->getCurrentRequest();
-			
-			// Prefix is siteUrl
-			// $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-			$protocol = 'http://'; // Always http because redirections exists from http to https, but not reverse.
-			$domainName = ($request) ? strtolower($request->getHttpHost()) : 'test'; // strtolower($_SERVER['SERVER_NAME']);
-			$siteUrl = $protocol . $domainName . '/';
-			
+						
 			$sql = "CREATE OR REPLACE FUNCTION " . $tableSchema . ".perm_id_generate" . $tableName . "()
 				RETURNS TRIGGER
 				LANGUAGE plpgsql
 				AS $$
 				BEGIN
 				IF (NEW.identifiantpermanent IS NULL OR NEW.identifiantpermanent = '') THEN
-				 NEW.identifiantpermanent  := concat('" . $siteUrl . "occtax/',uuid_generate_v1());
+				 NEW.identifiantpermanent  := uuid_generate_v1();
 				END IF;
 				RETURN NEW;
 				END;
