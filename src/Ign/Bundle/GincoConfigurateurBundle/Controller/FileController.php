@@ -87,9 +87,9 @@ class FileController extends FileControllerBase {
 					'sensidateattribution',
 					'sensireferentiel',
 					'sensiversionreferentiel',
-					'deedatedernieremodification',
 					'sensimanuelle',
 					'sensialerte',
+					'deedatedernieremodification',
 					'codecommunecalcule',
 					'codedepartementcalcule',
 					'codemaillecalcule',
@@ -154,8 +154,10 @@ class FileController extends FileControllerBase {
 			));
 
 			// Update as mandatory in file the fields which are mandatory in table
+			// We make an exception for identifiantpermanent, which must be present in file, but not mandatory (calculated only if empty)
 			$mFields = array_column($mandatoryFields, 'fieldName');
 			$mFields = array_intersect($fieldsToAdd, $mFields);
+			$mFields = array_diff($mFields, array('identifiantpermanent'));
 
 			foreach ($mFields as $mfield) {
 				$fileField = $em->getRepository('IgnConfigurateurBundle:FileField')->findOneBy(array(
