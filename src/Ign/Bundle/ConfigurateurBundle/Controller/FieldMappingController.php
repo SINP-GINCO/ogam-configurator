@@ -174,10 +174,10 @@ class FieldMappingController extends Controller {
 		$fieldMappingForm->handleRequest($request);
 		$fieldMapping->setMappingType('FILE');
 
-		// If field is mandatory and non-calculated in the data model, then the mapped field should also be mandatory
-		$fileField = $this->getFileFieldIfTableFieldIsMandatory($fieldMapping);
-
 		if ($fieldMappingForm->isValid()) {
+			// If field is mandatory and non-calculated in the data model, then the mapped field should also be mandatory
+			$fileField = $this->getFileFieldIfTableFieldIsMandatory($fieldMapping);
+			
 			$em->persist($fieldMapping);
 			if (isset($fileField)) {
 				$em->persist($fileField);
