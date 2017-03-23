@@ -8,6 +8,8 @@
 	padding-bottom: 2px;
 }
 .logo img {
+	display: inline-block;
+	margin-right: 15px;
 	width: 110px;
 	height: auto;
 }
