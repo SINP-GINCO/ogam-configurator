@@ -529,6 +529,47 @@ class ModelUnpublication extends DatabaseUtils {
 	}
 
 	/**
+	 * Returns true if it is possible to unpublish a model.
+	 * The model :
+	 * - MUST be published
+	 * - MUST NOT contain indirectly data
+	 *
+	 * @param $modelId: the
+	 *        	of the model
+	 * @return boolean
+	 */
+	public function isUnpublishable($modelId) {
+		$unpublishable = (!$this->isUnpublished($modelId) || !$this->modelHasData($modelId));
+
+		return $unpublishable;
+	}
+
+	/**
+	 * Returns true if a model is unpublished.
+	 *
+	 * @param $modelid the
+	 *        	id of the model
+	 *
+	 * @return boolean
+	 */
+	public function isUnpublished($modelId) {
+		$unpublished = false;
+
+		$sql = "SELECT count(*) from metadata.model WHERE id = ?";
+		$stmt = $this->conn->prepare($sql);
+		$stmt->bindValue(1, $modelId);
+		$stmt->execute();
+
+		if ($stmt->fetchColumn(0) === 0) {
+			$unpublished = true;
+		}
+
+		$this->conn->close();
+
+		return $unpublished;
+	}
+
+	/**
 	 * Checks if a model has data by checking that no tables of this model have data.
 	 *
 	 * @param string $modelId
@@ -555,6 +596,32 @@ class ModelUnpublication extends DatabaseUtils {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Checks if a model has a non-deleted jdd linked.
+	 *
+	 * @param string $modelId
+	 *        	: the id of the model
+	 * @return boolean
+	 */
+	public function modelHasJdd($modelId) {
+		$hasJdd = false;
+
+		$sql = "SELECT count(id) FROM jdd WHERE model_id = ? AND status <> 'deleted'";
+		$stmt = $this->adminConn->prepare($sql);
+		$stmt->bindValue(1, $modelId);
+		$stmt->execute();
+
+		$results = $stmt->fetchAll();
+
+		if ($stmt->fetchColumn(0) > 0) {
+			$hasJdd = true;
+		}
+
+		$this->conn->close();
+
+		return $unpublished;
 	}
 
 	/**
