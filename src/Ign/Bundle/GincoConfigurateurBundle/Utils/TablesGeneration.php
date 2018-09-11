@@ -231,7 +231,7 @@ class TablesGeneration extends TablesGenerationBase {
 						$result = "text";
 						break;
 					default:
-						$result = "varchar(255)";
+						$result = "text";
 				}
 				break;
 			case "DATE":
